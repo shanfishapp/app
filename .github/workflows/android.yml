@@ -65,8 +65,7 @@ jobs:
       uses: actions/upload-artifact@v7
       with:
         name: android-16-debug-apk
-        path: app/build/outputs/apk/*/debug/*.apk  # 通配匹配变体目录
-
+        path: app/build/outputs/apk/**/debug/*.apk
     - name: Upload Test Reports
       if: always()
       uses: actions/upload-artifact@v7
