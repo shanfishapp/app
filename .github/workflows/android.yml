@@ -1,10 +1,11 @@
-name: Android CI
+name: Android 16 Debug Build
 
 on:
   push:
-    branches: [ "master", "stable" ]
+    branches: [ "main" ]  # 改为 main 分支
   pull_request:
-    branches: [ "master", "stable" ]
+    branches: [ "main" ]
+  workflow_dispatch:  # 支持手动运行
 
 jobs:
   check:
@@ -13,7 +14,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-java@v5
         with:
-          java-version: 21
+          java-version: 17  # Android 16 需要 JDK 17，不是 21
           distribution: 'zulu'
           cache: gradle
 
@@ -29,19 +30,37 @@ jobs:
     - uses: actions/checkout@v6
     - uses: actions/setup-java@v5
       with:
-        java-version: 21
+        java-version: 17  # Android 16 需要 JDK 17
         distribution: 'zulu'
         cache: gradle
 
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
-    - name: Build with Gradle
-      run: ./gradlew assemble
+    - name: Setup Android SDK with API 36
+      uses: android-actions/setup-android@v3
+      with:
+        packages: |
+          platform-tools
+          platforms;android-36
+          build-tools;36.0.0
 
-    - name: Upload PR artifacts
-      if: github.event_name == 'pull_request'
+    - name: Build Debug APK for Android 16
+      run: ./gradlew assembleDebug
+
+    - name: Run Unit Tests
+      run: ./gradlew testDebugUnitTest
+
+    - name: Upload Debug APK
+      if: always()  # 即使测试失败也上传 APK
       uses: actions/upload-artifact@v7
       with:
-        name: release-apk
-        path: app/build/outputs/apk/*/release/BoomingMusic-*.apk
+        name: android-16-debug-apk
+        path: app/build/outputs/apk/debug/*.apk
+
+    - name: Upload Test Reports
+      if: always()
+      uses: actions/upload-artifact@v7
+      with:
+        name: test-reports
+        path: app/build/reports/tests/
