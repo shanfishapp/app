@@ -9,15 +9,12 @@ import android.app.Service
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.pm.ServiceInfo
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import androidx.annotation.RequiresApi
+
 import androidx.core.app.NotificationCompat
-import androidx.core.app.ServiceCompat
 import androidx.core.content.ContextCompat
-import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import com.mardous.booming.R
 import com.mardous.booming.data.local.repository.LyricsRepository
@@ -81,18 +78,9 @@ class LyricsNotificationManager(
             return
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            ServiceCompat.startForeground(
-                context,
-                LYRICS_NOTIFICATION_ID,
-                buildNotification(song, null, null, 0),
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE
-            )
-        } else {
-            context.startForegroundService(Intent(context, LyricsNotificationService::class.java).apply {
-                putExtra(EXTRA_SONG_ID, song.id)
-            })
-        }
+        context.startForegroundService(Intent(context, LyricsNotificationService::class.java).apply {
+            putExtra(LyricsNotificationService.EXTRA_SONG_ID, song.id)
+        })
 
         currentSong = song
         loadAndDisplayLyrics(song)

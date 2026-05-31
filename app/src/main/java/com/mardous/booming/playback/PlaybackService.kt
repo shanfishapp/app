@@ -771,6 +771,10 @@ class PlaybackService :
                     repository.insertOrIncrementSkipCount(previousSong)
                 }
             }
+
+            if (Preferences.isLyricsNotificationMode && isPlaying) {
+                lyricsNotificationManager.updateSong(newSong)
+            }
         }
 
         if (player.currentMediaItemIndex == stopIndex) {
@@ -779,10 +783,6 @@ class PlaybackService :
 
         persistentStorage.saveState()
         updateWidgets(force = true)
-
-        if (Preferences.isLyricsNotificationMode && player.isPlaying) {
-            lyricsNotificationManager.updateSong(newSong)
-        }
     }
 
     override fun onPlayerError(error: PlaybackException) {
