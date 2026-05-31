@@ -22,7 +22,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run Lint
-        run: ./gradlew lint
+        run: ./gradlew lintNormalDebug  # 改为具体变体
 
   build:
     runs-on: ubuntu-latest
@@ -39,16 +39,13 @@ jobs:
 
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
-      # 不安装任何额外包，后续手动安装
       with:
         packages: ''
 
     - name: Install Android 16 SDK Platform and Build Tools
       run: |
-        # 安装 API 36 的 SDK 平台和构建工具
         echo y | sdkmanager "platforms;android-36"
         echo y | sdkmanager "build-tools;36.0.0"
-        # 确保 platform-tools 已安装（adb 等）
         echo y | sdkmanager "platform-tools"
         echo y | sdkmanager "tools"
 
@@ -58,17 +55,17 @@ jobs:
         sdkmanager --list | grep "build-tools;36" || true
 
     - name: Build Debug APK for Android 16
-      run: ./gradlew assembleDebug
+      run: ./gradlew assembleNormalDebug  # 假设你的变体是 Normal，根据实际情况调整
 
     - name: Run Unit Tests
-      run: ./gradlew testDebugUnitTest
+      run: ./gradlew testNormalDebugUnitTest  # 改为具体变体
 
     - name: Upload Debug APK
       if: always()
       uses: actions/upload-artifact@v7
       with:
         name: android-16-debug-apk
-        path: app/build/outputs/apk/debug/*.apk
+        path: app/build/outputs/apk/*/debug/*.apk  # 通配匹配变体目录
 
     - name: Upload Test Reports
       if: always()
